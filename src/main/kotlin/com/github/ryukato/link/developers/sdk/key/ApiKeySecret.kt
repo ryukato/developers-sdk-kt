@@ -1,4 +1,4 @@
-package com.github.ryukato.link.developers.sdk.model.dto
+package com.github.ryukato.link.developers.sdk.key
 
 data class ApiKeySecret(val key: String, val secret: String) {
     init {

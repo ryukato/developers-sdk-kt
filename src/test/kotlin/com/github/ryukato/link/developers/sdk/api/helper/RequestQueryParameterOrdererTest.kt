@@ -1,5 +1,6 @@
-package com.github.ryukato.link.developers.sdk.api
+package com.github.ryukato.link.developers.sdk.api.helper
 
+import com.github.ryukato.link.developers.sdk.api.client.toEpochMilli
 import okhttp3.HttpUrl
 import okhttp3.Request
 import org.junit.jupiter.api.Assertions.assertEquals

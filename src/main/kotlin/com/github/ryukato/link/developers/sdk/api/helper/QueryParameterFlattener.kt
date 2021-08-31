@@ -1,4 +1,4 @@
-package com.github.ryukato.link.developers.sdk.api
+package com.github.ryukato.link.developers.sdk.api.helper
 
 import java.util.TreeMap
 

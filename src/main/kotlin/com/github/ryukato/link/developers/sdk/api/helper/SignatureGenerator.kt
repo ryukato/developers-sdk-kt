@@ -1,4 +1,4 @@
-package com.github.ryukato.link.developers.sdk.api
+package com.github.ryukato.link.developers.sdk.api.helper
 
 import mu.KotlinLogging
 import org.apache.commons.codec.binary.Base64
@@ -32,8 +32,8 @@ interface SignatureGenerator {
 
 
 class DefaultSignatureGenerator(
-    private val queryParameterFlattener: QueryParameterFlattener,
-    private val requestBodyFlattener: RequestBodyFlattener,
+        private val queryParameterFlattener: QueryParameterFlattener,
+        private val requestBodyFlattener: RequestBodyFlattener,
 ) : SignatureGenerator {
     override fun generate(
         serviceApiSecret: String,

@@ -1,4 +1,4 @@
-package com.github.ryukato.link.developers.sdk.model.response
+package com.github.ryukato.link.developers.sdk.api.response
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonParser

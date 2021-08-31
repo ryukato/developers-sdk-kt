@@ -1,7 +1,7 @@
-package com.github.ryukato.link.developers.sdk.api
+package com.github.ryukato.link.developers.sdk.api.helper
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.ryukato.link.developers.sdk.model.request.OrderBy
+import com.github.ryukato.link.developers.sdk.api.request.OrderBy
 import okhttp3.FormBody
 import okhttp3.HttpUrl
 import okhttp3.Interceptor

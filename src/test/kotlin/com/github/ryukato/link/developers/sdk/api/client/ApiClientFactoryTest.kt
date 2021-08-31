@@ -1,6 +1,8 @@
-package com.github.ryukato.link.developers.sdk.api
+package com.github.ryukato.link.developers.sdk.api.client
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.ryukato.link.developers.sdk.api.helper.RequestHeadersAppender
+import com.github.ryukato.link.developers.sdk.api.helper.RequestQueryParameterOrderer
 import okhttp3.Headers
 import okhttp3.HttpUrl
 import okhttp3.Request
@@ -11,18 +13,19 @@ import retrofit2.http.GET
 import java.util.TreeMap
 
 class ApiClientFactoryTest {
-    private lateinit var apiClientFactory: ApiClientFactory
+    private lateinit var retrofitApiClientFactory: RetrofitApiClientFactory
 
     @BeforeEach
     fun setUp() {
-        apiClientFactory = ApiClientFactory()
+        retrofitApiClientFactory = RetrofitApiClientFactory()
     }
 
     @Test
     fun test_build() {
         println("test!!!!!!!")
-        val apiClient: ApiClient = apiClientFactory.build(
+        val apiClient: ApiClient = retrofitApiClientFactory.build(
             "http://localhost:8080",
+                false,
             object : RequestHeadersAppender {
                 override fun createNewHeaders(request: Request): Headers {
                     return request.headers.newBuilder().build()
@@ -37,7 +40,7 @@ class ApiClientFactoryTest {
                     return request.url
                 }
             },
-            false,
+
             jacksonObjectMapper()
         )
 

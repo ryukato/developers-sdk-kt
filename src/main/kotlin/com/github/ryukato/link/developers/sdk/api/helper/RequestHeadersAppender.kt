@@ -1,7 +1,11 @@
-package com.github.ryukato.link.developers.sdk.api
+package com.github.ryukato.link.developers.sdk.api.helper
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.ryukato.link.developers.sdk.api.NONCE_HEADER
+import com.github.ryukato.link.developers.sdk.api.SERVICE_API_KEY_HEADER
+import com.github.ryukato.link.developers.sdk.api.SIGNATURE_HEADER
+import com.github.ryukato.link.developers.sdk.api.TIMESTAMP_HEADER
 
 import okhttp3.FormBody
 import okhttp3.Headers
@@ -23,11 +27,11 @@ interface RequestHeadersAppender: Interceptor {
 }
 
 class DefaultRequestHeadersAppender(
-    private val applicationClock: Clock,
-    private val signatureGenerator: SignatureGenerator,
-    private val nonceGenerator: NonceGenerator,
-    private val serviceApiKey: String,
-    private val serviceApiSecret: String,
+        private val applicationClock: Clock,
+        private val signatureGenerator: SignatureGenerator,
+        private val nonceGenerator: NonceGenerator,
+        private val serviceApiKey: String,
+        private val serviceApiSecret: String,
 ) : RequestHeadersAppender {
     override fun createNewHeaders(request: Request): Headers {
         val timestamp = applicationClock.instant().toEpochMilli()

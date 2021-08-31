@@ -1,4 +1,4 @@
-package com.github.ryukato.link.developers.sdk.model.request
+package com.github.ryukato.link.developers.sdk.api.request
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.math.BigInteger
@@ -263,7 +263,11 @@ enum class OrderBy {
     fun toParameter(): String = this.name.lowercase()
 }
 
+fun OrderBy.name() = this.name.lowercase()
+
 enum class RequestType {
     REDIRECT_URI, AOA;
     fun toParameter(): String = this.name.lowercase()
 }
+
+fun RequestType.name() = this.name.lowercase()
