@@ -21,28 +21,24 @@ class SignatureGeneratorTest {
     private lateinit var queryParameterFlattener: QueryParameterFlattener
 
 
-    @BeforeEach
-    fun setUp() {
-        signatureGenerator = DefaultSignatureGenerator(
-            queryParameterFlattener,
-            requestBodyFlattener
-        )
-    }
-
     @Test
     fun test() {
         `when`(requestBodyFlattener.flatten(emptyMap())).thenAnswer { "" }
         val serviceApiSecret = "test-api-secret"
+
+        signatureGenerator = DefaultSignatureGenerator(
+            serviceApiSecret,
+            queryParameterFlattener,
+            requestBodyFlattener
+        )
+
         val httpMethod = "GET"
         val path = "/v1/test-api"
         val timestamp = 1617350132629
         val nonce = "test"
         val flatQueryParam = "limit=10&page=1&orderBy=desc"
-        val signature = signatureGenerator.generate(
-            serviceApiSecret,
-            httpMethod,
-            path, timestamp, nonce, flatQueryParam
-        )
+        val signature = signatureGenerator.generate(httpMethod, path, timestamp, nonce, flatQueryParam)
+
         assertNotNull(signature)
         val expectedSignature = "2DKzLI81cUnwur83SXFbk5tNuWi3dC+mfRnXtab8Jkwl70Ex+FpgxOKdo3ozynxzl6HDm5he2GT6IORSQ7zzxg=="
         assertEquals(expectedSignature, signature)
@@ -50,6 +46,13 @@ class SignatureGeneratorTest {
 
     @Test
     fun test_many_query_parameters() {
+        val serviceApiSecret = "7d55f1f5-0f6f-426e-909c-47913aa09e72"
+        signatureGenerator = DefaultSignatureGenerator(
+            serviceApiSecret,
+            queryParameterFlattener,
+            requestBodyFlattener
+        )
+
         val page = "0"
         val limit = "10"
         val orderBy = "desc"
@@ -61,7 +64,7 @@ class SignatureGeneratorTest {
         `when`(queryParameterFlattener.flatten(anyMap())).thenAnswer {
             "after=$after&before=$before&limit=$limit&msgType=$msgType&orderBy=$orderBy&page=$page"
         }
-        val serviceApiSecret = "7d55f1f5-0f6f-426e-909c-47913aa09e72"
+
         val httpMethod = "GET"
         val path = "/v1/wallets/tlink1ey2p39e4l78h49pm28z5ms62ycd06sgrprtps5/transactions"
         val timestamp = 1617503164770
@@ -75,7 +78,6 @@ class SignatureGeneratorTest {
             "before" to listOf(before)
         )
         val signature = signatureGenerator.generate(
-            serviceApiSecret,
             httpMethod,
             path, timestamp, nonce, queryParams
         )
@@ -86,6 +88,12 @@ class SignatureGeneratorTest {
 
     @Test
     fun test_with_query_param_n_request_body() {
+        val serviceApiSecret = "7d55f1f5-0f6f-426e-909c-47913aa09e72"
+        signatureGenerator = DefaultSignatureGenerator(
+            serviceApiSecret,
+            queryParameterFlattener,
+            requestBodyFlattener
+        )
         val ownerAddress = "tlink1ey2p39e4l78h49pm28z5ms62ycd06sgrprtps5"
         val landingUri = "https://my.service.landing/home"
 
@@ -93,7 +101,7 @@ class SignatureGeneratorTest {
             "landingUri=$landingUri&ownerAddress=$ownerAddress"
         }
         `when`(queryParameterFlattener.flatten(anyMap())).thenAnswer { "requestType=aoa" }
-        val serviceApiSecret = "7d55f1f5-0f6f-426e-909c-47913aa09e72"
+
         val httpMethod = "POST"
         val path = "/v1/users/U9fc03e78e1ae958b1bd3633cfb48acb9/service-tokens/493aba33/request-proxy"
         val timestamp = 1615593846507
@@ -106,7 +114,6 @@ class SignatureGeneratorTest {
             "landingUri" to landingUri
         )
         val signature = signatureGenerator.generate(
-            serviceApiSecret,
             httpMethod,
             path,
             timestamp,

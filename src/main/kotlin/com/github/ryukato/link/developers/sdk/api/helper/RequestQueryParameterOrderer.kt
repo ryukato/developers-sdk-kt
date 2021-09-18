@@ -4,7 +4,7 @@ import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import java.util.TreeMap
+import java.util.*
 
 interface RequestQueryParameterOrderer : QueryParameterOrderer, Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -44,6 +44,10 @@ class DefaultRequestQueryParameterOrderer : RequestQueryParameterOrderer {
         return request.url.queryParameterNames.map {
             it to request.url.queryParameterValues(it)
         }.toMap()
+    }
+
+    companion object {
+        fun createDefaultInstance() = DefaultRequestQueryParameterOrderer()
     }
 }
 

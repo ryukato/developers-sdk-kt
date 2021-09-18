@@ -1,6 +1,6 @@
 package com.github.ryukato.link.developers.sdk.api.helper
 
-import java.util.TreeMap
+import java.util.*
 
 interface QueryParameterFlattener {
     fun flatten(queryParams: Map<String, List<String?>>): String

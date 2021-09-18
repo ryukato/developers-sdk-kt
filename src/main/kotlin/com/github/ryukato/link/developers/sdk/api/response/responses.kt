@@ -16,7 +16,17 @@ data class GenericResponse<T>(
     val statusCode: Int,
     val statusMessage: String,
     val responseData: T? = null
-)
+) {
+    companion object {
+        fun unknownResponse(throwable: Throwable): GenericResponse<Unit> {
+            val exceptionName = (throwable.cause ?: throwable).javaClass.name
+            val errorMessage = throwable.cause?.message ?: throwable.message ?: "Unknown Error"
+            val statusMessage = "Exception: $exceptionName, error-message: $errorMessage"
+
+            return GenericResponse(-1, -1, statusMessage)
+        }
+    }
+}
 
 data class ServiceDetail(
     val serviceId: String,

@@ -1,61 +1,62 @@
 package com.github.ryukato.link.developers.sdk.api.helper
 
-import com.github.ryukato.link.developers.sdk.api.response.NetworkResponse
+import com.github.ryukato.link.developers.sdk.api.response.GenericResponse
 import okhttp3.Request
 import okhttp3.ResponseBody
 import okio.Timeout
-import retrofit2.*
-import java.io.IOException
+import retrofit2.Call
+import retrofit2.CallAdapter
+import retrofit2.Callback
+import retrofit2.Converter
+import retrofit2.Response
+import retrofit2.Retrofit
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
-internal class NetworkResponseCall<R : Any, E : Any>(
-        private val delegate: Call<R>,
-        private val errorBodyConverter: Converter<ResponseBody, E>
-) : Call<NetworkResponse<R, E>> {
-    override fun clone(): Call<NetworkResponse<R, E>> {
+internal class NetworkResponseCall<R : Any>(
+    private val delegate: Call<R>,
+    private val errorBodyConverter: Converter<ResponseBody, R>
+) : Call<R> {
+    override fun clone(): Call<R> {
         return NetworkResponseCall(delegate.clone(), errorBodyConverter)
     }
 
-    override fun execute(): Response<NetworkResponse<R, E>> {
+    override fun execute(): Response<R> {
         throw UnsupportedOperationException("NetworkResponseCall doesn't support execute")
     }
 
-    override fun enqueue(callback: Callback<NetworkResponse<R, E>>) {
+    override fun enqueue(callback: Callback<R>) {
         return this.delegate.enqueue(object : Callback<R> {
             override fun onResponse(call: Call<R>, response: Response<R>) {
                 val body = response.body()
-                val code = response.code()
                 val error = response.errorBody()
 
                 if (response.isSuccessful) {
                     body?.let {
                         callback.onResponse(this@NetworkResponseCall, successBody(body))
-                    } ?: callback.onResponse(this@NetworkResponseCall, unknownError())
+                    } ?: callback.onResponse(this@NetworkResponseCall, unknownError(body))
                 } else {
                     val errorBody = resolveErrorBody(error)
                     errorBody?.let {
-                        callback.onResponse(this@NetworkResponseCall, apiError(errorBody, code))
-                    } ?: callback.onResponse(this@NetworkResponseCall, unknownError())
+                        callback.onResponse(this@NetworkResponseCall, apiError(errorBody))
+                    } ?: callback.onResponse(this@NetworkResponseCall, unknownError(errorBody))
                 }
             }
 
             override fun onFailure(call: Call<R>, throwable: Throwable) {
-                val response: Response<NetworkResponse<R, E>> = resoleFailure(throwable)
+                val response: Response<R> = resoleFailure(throwable)
                 callback.onResponse(this@NetworkResponseCall, response)
             }
         })
     }
 
-    private fun resoleFailure(throwable: Throwable): Response<NetworkResponse<R, E>> {
-        val networkResponse = when (throwable) {
-            is IOException -> NetworkResponse.NetworkError(throwable)
-            else -> NetworkResponse.UnknownError(throwable)
-        }
-        return Response.success(networkResponse)
+    private fun resoleFailure(throwable: Throwable): Response<R> {
+        val response = GenericResponse.unknownResponse(throwable)
+        @Suppress("UNCHECKED_CAST")
+        return Response.success(response as R)
     }
 
-    private fun resolveErrorBody(error: ResponseBody?): E? {
+    private fun resolveErrorBody(error: ResponseBody?): R? {
         val errorBody = when {
             error == null || error.contentLength() == 0L -> null
             else -> try {
@@ -67,18 +68,18 @@ internal class NetworkResponseCall<R : Any, E : Any>(
         return errorBody
     }
 
-    private fun apiError(errorBody: E, code: Int): Response<NetworkResponse<R, E>> {
-        return Response.success(NetworkResponse.ApiError(errorBody, code))
+    private fun apiError(errorBody: R): Response<R> {
+        return Response.success(errorBody)
     }
 
 
-    private fun successBody(body: R): Response<NetworkResponse<R, E>> {
-        return Response.success(NetworkResponse.Success(body))
+    private fun successBody(body: R): Response<R> {
+        return Response.success(body)
     }
 
 
-    private fun unknownError(): Response<NetworkResponse<R, E>> {
-        return Response.success(NetworkResponse.UnknownError(null))
+    private fun unknownError(body: R?): Response<R> {
+        return Response.success(body)
     }
 
     override fun isExecuted(): Boolean = delegate.isExecuted
@@ -93,21 +94,25 @@ internal class NetworkResponseCall<R : Any, E : Any>(
 }
 
 
-class NetworkResponseAdapter<R : Any, E : Any>(
-        private val successType: Type,
-        private val errorBodyConverter: Converter<ResponseBody, E>
-) : CallAdapter<R, Call<NetworkResponse<R, E>>> {
+class NetworkResponseAdapter<R : Any>(
+    private val successType: Type,
+    private val errorBodyConverter: Converter<ResponseBody, R>
+) : CallAdapter<R, Call<R>> {
     override fun responseType(): Type = successType
 
-    override fun adapt(call: Call<R>): Call<NetworkResponse<R, E>> = NetworkResponseCall(call, errorBodyConverter)
+    override fun adapt(call: Call<R>): Call<R> {
+        return NetworkResponseCall(call, errorBodyConverter)
+    }
+
 }
 
 
 class NetworkResponseAdapterFactory : CallAdapter.Factory() {
     override fun get(
-            returnType: Type,
-            annotations: Array<Annotation>,
-            retrofit: Retrofit): CallAdapter<*, *>? {
+        returnType: Type,
+        annotations: Array<Annotation>,
+        retrofit: Retrofit
+    ): CallAdapter<*, *>? {
         if (Call::class.java != getRawType(returnType)) {
             return null
         }
@@ -117,19 +122,18 @@ class NetworkResponseAdapterFactory : CallAdapter.Factory() {
         }
 
         val responseType = getParameterUpperBound(0, returnType)
-        if (getRawType(responseType) != NetworkResponse::class.java) {
+        if (getRawType(responseType) != GenericResponse::class.java) {
             return null
         }
         // the response type is Service and should be parameterized
         check(responseType is ParameterizedType) { "Response must be parameterized as NetworkResponse<Foo> or NetworkResponse<out Foo>" }
 
-        val successBodyType = getParameterUpperBound(0, returnType)
-        val errorBodyType = getParameterUpperBound(1, returnType)
+//        val bodyType = getParameterUpperBound(0, responseType)
         val errorBodyConverter = retrofit.nextResponseBodyConverter<Any>(
-                null,
-                errorBodyType,
-                annotations
+            null,
+            responseType,
+            annotations
         )
-        return NetworkResponseAdapter<Any, Any>(successBodyType, errorBodyConverter)
+        return NetworkResponseAdapter<Any>(responseType, errorBodyConverter)
     }
 }

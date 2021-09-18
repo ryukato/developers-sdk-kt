@@ -1,16 +1,14 @@
 package com.github.ryukato.link.developers.sdk.api.helper
 
-import mu.KotlinLogging
+import com.github.ryukato.link.developers.sdk.key.ApiKeySecret
 import org.apache.commons.codec.binary.Base64
-import java.util.TreeMap
+import java.util.*
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
-private val logger = KotlinLogging.logger { }
 
 interface SignatureGenerator {
     fun generate(
-        serviceApiSecret: String,
         httpMethod: String,
         path: String,
         timestamp: Long,
@@ -20,7 +18,6 @@ interface SignatureGenerator {
     ): String
 
     fun generate(
-        serviceApiSecret: String,
         httpMethod: String,
         path: String,
         timestamp: Long,
@@ -32,11 +29,11 @@ interface SignatureGenerator {
 
 
 class DefaultSignatureGenerator(
-        private val queryParameterFlattener: QueryParameterFlattener,
-        private val requestBodyFlattener: RequestBodyFlattener,
+    private val serviceApiSecret:  String,
+    private val queryParameterFlattener: QueryParameterFlattener,
+    private val requestBodyFlattener: RequestBodyFlattener,
 ) : SignatureGenerator {
     override fun generate(
-        serviceApiSecret: String,
         httpMethod: String,
         path: String,
         timestamp: Long,
@@ -47,7 +44,6 @@ class DefaultSignatureGenerator(
         val flattenQueryParam = queryParameterFlattener.flatten(queryParam)
 
         return generate(
-            serviceApiSecret,
             httpMethod,
             path,
             timestamp,
@@ -58,7 +54,6 @@ class DefaultSignatureGenerator(
     }
 
     override fun generate(
-        serviceApiSecret: String,
         httpMethod: String,
         path: String,
         timestamp: Long,
@@ -67,19 +62,25 @@ class DefaultSignatureGenerator(
         body: Map<String, Any?>,
     ): String {
         val data = signatureTarget(body, nonce, timestamp, httpMethod, path, flatQueryParam)
-        logger.debug { "signature data:$data, from httpMethod$httpMethod, path: $path, timestamp: $timestamp, nonce:$nonce, flatQueryParam: $flatQueryParam, body: $body" }
         val rawHmac = rawSignature(serviceApiSecret, data)
         return Base64.encodeBase64String(rawHmac)
     }
 
     private fun rawSignature(serviceApiSecret: String, data: String): ByteArray? {
-        val signingKey = SecretKeySpec(serviceApiSecret.toByteArray(), HNAC_512_SECRET_ALGORITHM)
-        val mac = Mac.getInstance(HNAC_512_SECRET_ALGORITHM)
+        val signingKey = SecretKeySpec(serviceApiSecret.toByteArray(), HMAC_512_SECRET_ALGORITHM)
+        val mac = Mac.getInstance(HMAC_512_SECRET_ALGORITHM)
         mac.init(signingKey)
         return mac.doFinal(data.toByteArray())
     }
 
-    private fun signatureTarget(body: Map<String, Any?>, nonce: String, timestamp: Long, httpMethod: String, path: String, flatQueryParam: String): String {
+    private fun signatureTarget(
+        body: Map<String, Any?>,
+        nonce: String,
+        timestamp: Long,
+        httpMethod: String,
+        path: String,
+        flatQueryParam: String
+    ): String {
         val bodyTreeMap = sortBody(body)
         val flattenBody = requestBodyFlattener.flatten(bodyTreeMap)
         val stringBuilder = StringBuilder()
@@ -109,6 +110,14 @@ class DefaultSignatureGenerator(
     }
 
     companion object {
-        private const val HNAC_512_SECRET_ALGORITHM = "HmacSHA512"
+        private const val HMAC_512_SECRET_ALGORITHM = "HmacSHA512"
+
+        fun createDefaultInstance(apiKeySecret:  String): SignatureGenerator {
+            return DefaultSignatureGenerator(
+                apiKeySecret,
+                DefaultOrderedQueryParameterFlattener(),
+                DefaultRequestBodyFlattener()
+            )
+        }
     }
 }

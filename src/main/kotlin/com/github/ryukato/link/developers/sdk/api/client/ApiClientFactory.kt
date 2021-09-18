@@ -1,10 +1,9 @@
 package com.github.ryukato.link.developers.sdk.api.client
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.ryukato.link.developers.sdk.api.helper.DefaultRequestQueryParameterOrderer
 import com.github.ryukato.link.developers.sdk.api.helper.RequestHeadersAppender
 import com.github.ryukato.link.developers.sdk.api.helper.RequestQueryParameterOrderer
+import com.github.ryukato.link.developers.sdk.key.ApiKeySecret
 
 interface ApiClientFactory {
     fun build(
@@ -14,4 +13,10 @@ interface ApiClientFactory {
             requestQueryParameterOrderer: RequestQueryParameterOrderer,
             jacksonObjectMapper: ObjectMapper
     ): ApiClient
+
+    fun buildDefaultApiClient(
+        baseUrl: String,
+        enableLogging: Boolean,
+        apiKeySecret: ApiKeySecret
+    ) : ApiClient
 }

@@ -10,4 +10,8 @@ class DefaultStringNonceGenerator: NonceGenerator {
     override fun newNonce(): String {
         return RandomStringUtils.randomAlphanumeric(8)
     }
+
+    companion object {
+        fun createDefaultInstance() = DefaultStringNonceGenerator()
+    }
 }

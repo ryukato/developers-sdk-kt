@@ -50,8 +50,7 @@ class DefaultRequestHeadersAppendInterceptorTest {
             clock,
             defaultSignatureGenerator,
             nonceGenerator,
-            SERVICE_API_KEY,
-            SERVICE_API_SECRET
+            SERVICE_API_KEY
         )
 
         val loggedHeaders = mutableSetOf<String>()
@@ -84,7 +83,6 @@ class DefaultRequestHeadersAppendInterceptorTest {
         val capturedQueryParams = mutableSetOf<String>()
         val signatureGenerator = object : SignatureGenerator {
             override fun generate(
-                serviceApiSecret: String,
                 httpMethod: String,
                 path: String,
                 timestamp: Long,
@@ -96,7 +94,6 @@ class DefaultRequestHeadersAppendInterceptorTest {
             }
 
             override fun generate(
-                serviceApiSecret: String,
                 httpMethod: String,
                 path: String,
                 timestamp: Long,
@@ -112,8 +109,7 @@ class DefaultRequestHeadersAppendInterceptorTest {
             clock,
             signatureGenerator,
             nonceGenerator,
-            SERVICE_API_KEY,
-            SERVICE_API_SECRET
+            SERVICE_API_KEY
         )
 
         val loggedHeaders = mutableSetOf<String>()
@@ -164,8 +160,7 @@ class DefaultRequestHeadersAppendInterceptorTest {
             clock,
             signatureGenerator,
             nonceGenerator,
-            SERVICE_API_KEY,
-            SERVICE_API_SECRET
+            SERVICE_API_KEY
         )
 
         val loggedHeaders = mutableSetOf<String>()
@@ -216,8 +211,7 @@ class DefaultRequestHeadersAppendInterceptorTest {
             clock,
             signatureGenerator,
             nonceGenerator,
-            SERVICE_API_KEY,
-            SERVICE_API_SECRET
+            SERVICE_API_KEY
         )
 
         val loggedHeaders = mutableSetOf<String>()
@@ -271,8 +265,7 @@ class DefaultRequestHeadersAppendInterceptorTest {
             clock,
             signatureGenerator,
             nonceGenerator,
-            SERVICE_API_KEY,
-            SERVICE_API_SECRET
+            SERVICE_API_KEY
         )
 
         val loggedHeaders = mutableSetOf<String>()
@@ -327,7 +320,6 @@ class DefaultRequestHeadersAppendInterceptorTest {
         val clock: Clock = Clock.systemUTC()
         val defaultSignatureGenerator = object : SignatureGenerator {
             override fun generate(
-                serviceApiSecret: String,
                 httpMethod: String,
                 path: String,
                 timestamp: Long,
@@ -338,7 +330,6 @@ class DefaultRequestHeadersAppendInterceptorTest {
             }
 
             override fun generate(
-                serviceApiSecret: String,
                 httpMethod: String,
                 path: String,
                 timestamp: Long,
@@ -357,7 +348,6 @@ class DefaultRequestHeadersAppendInterceptorTest {
         fun createCaptureBodySignatureGenerator(capturedRequestBody: MutableMap<String, Any?>): SignatureGenerator {
             return object : SignatureGenerator {
                 override fun generate(
-                    serviceApiSecret: String,
                     httpMethod: String,
                     path: String,
                     timestamp: Long,
@@ -369,7 +359,6 @@ class DefaultRequestHeadersAppendInterceptorTest {
                 }
 
                 override fun generate(
-                    serviceApiSecret: String,
                     httpMethod: String,
                     path: String,
                     timestamp: Long,

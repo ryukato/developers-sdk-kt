@@ -6,6 +6,7 @@ import com.github.ryukato.link.developers.sdk.api.NONCE_HEADER
 import com.github.ryukato.link.developers.sdk.api.SERVICE_API_KEY_HEADER
 import com.github.ryukato.link.developers.sdk.api.SIGNATURE_HEADER
 import com.github.ryukato.link.developers.sdk.api.TIMESTAMP_HEADER
+import com.github.ryukato.link.developers.sdk.key.ApiKeySecret
 
 import okhttp3.FormBody
 import okhttp3.Headers
@@ -15,8 +16,9 @@ import okhttp3.Request
 import okhttp3.Response
 import okio.Buffer
 import java.time.Clock
+import java.time.ZoneId
 
-interface RequestHeadersAppender: Interceptor {
+interface RequestHeadersAppender : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         val headers = createNewHeaders(request)
@@ -27,11 +29,10 @@ interface RequestHeadersAppender: Interceptor {
 }
 
 class DefaultRequestHeadersAppender(
-        private val applicationClock: Clock,
-        private val signatureGenerator: SignatureGenerator,
-        private val nonceGenerator: NonceGenerator,
-        private val serviceApiKey: String,
-        private val serviceApiSecret: String,
+    private val applicationClock: Clock,
+    private val signatureGenerator: SignatureGenerator,
+    private val nonceGenerator: NonceGenerator,
+    private val serviceApiKey: String,
 ) : RequestHeadersAppender {
     override fun createNewHeaders(request: Request): Headers {
         val timestamp = applicationClock.instant().toEpochMilli()
@@ -52,7 +53,6 @@ class DefaultRequestHeadersAppender(
         body: Map<String, Any>
     ): String {
         return signatureGenerator.generate(
-            serviceApiSecret,
             request.method,
             request.url.encodedPath,
             timestamp,
@@ -66,7 +66,7 @@ class DefaultRequestHeadersAppender(
         return if (request.method == "GET") {
             emptyMap()
         } else {
-            if (request.body?.contentLength() ?: 0 < 0) {
+            if ((request.body?.contentLength() ?: 0) < 0) {
                 emptyMap()
             } else {
                 extractBodyFromRequest(request)
@@ -75,9 +75,9 @@ class DefaultRequestHeadersAppender(
     }
 
     private fun queryParameters(request: Request): Map<String, List<String?>> {
-        return request.url.queryParameterNames.map {
-            it to request.url.queryParameterValues(it)
-        }.toMap()
+        return request.url.queryParameterNames.associateWith {
+            request.url.queryParameterValues(it)
+        }
     }
 
     private fun newHeaders(request: Request, signature: String, nonce: String, timestamp: Long): Headers {
@@ -120,13 +120,22 @@ class DefaultRequestHeadersAppender(
         private val jacksonObjectMapper = jacksonObjectMapper()
         private val JSON_MEDIA_TYPE = "application/json; charset=UTF-8".toMediaType()
         private val FORM_MEDIA_TYPE = "application/x-www-form-urlencoded".toMediaType()
+
+        fun createDefaultInstance(apiKeySecret: ApiKeySecret): RequestHeadersAppender {
+            return DefaultRequestHeadersAppender(
+                Clock.system(ZoneId.systemDefault()),
+                DefaultSignatureGenerator.createDefaultInstance(apiKeySecret.secret),
+                DefaultStringNonceGenerator.createDefaultInstance(),
+                apiKeySecret.key
+            )
+        }
     }
 }
 
 fun FormBody.toMap(): Map<String, String> {
     return this.let { formBody ->
-        (0 until formBody.size).map {
+        (0 until formBody.size).associate {
             formBody.name(it) to formBody.value(it)
-        }.toMap()
+        }
     }
 }
