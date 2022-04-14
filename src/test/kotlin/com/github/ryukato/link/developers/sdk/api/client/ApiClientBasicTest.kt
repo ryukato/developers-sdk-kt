@@ -16,7 +16,7 @@ class ApiClientBasicTest {
     private val baseUrl = "https://test-api.blockchain.line.me/"
     private val invalidBaseUrl = "https://invali-url.com/"
     private val apiKeySecret =
-        ApiKeySecret("02f94de7-cab9-47a0-b295-6211bf71125d", "02f94de7-cab9-47a0-b295-6211bf71125d")
+        ApiKeySecret(System.getenv("API_KEY"), System.getenv("API_SECRET"))
     private val invalidApiKeySecret = ApiKeySecret("invalid-api-key", "invalid-api-secret")
 
     @BeforeEach
