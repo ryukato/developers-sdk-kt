@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ryukato.link.developers.sdk.api.helper.DefaultRequestHeadersAppender
 import com.github.ryukato.link.developers.sdk.api.helper.NonceGenerator
 import com.github.ryukato.link.developers.sdk.api.request.OrderBy
+import com.github.ryukato.link.developers.sdk.time.DefaultGlobalTimestampProvider
 import okhttp3.FormBody
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
@@ -30,6 +31,8 @@ class DefaultRequestHeadersAppendInterceptorTest {
 
     private lateinit var interceptor: Interceptor
 
+    private val globalTimestampProvider = DefaultGlobalTimestampProvider()
+
     @BeforeAll
     fun setUpAll() {
         mockWebServer = MockWebServer()
@@ -49,7 +52,7 @@ class DefaultRequestHeadersAppendInterceptorTest {
     @Test
     fun test_without_body_query_params() {
         interceptor = DefaultRequestHeadersAppender(
-            clock,
+            globalTimestampProvider,
             defaultSignatureGenerator,
             nonceGenerator,
             SERVICE_API_KEY
@@ -90,7 +93,8 @@ class DefaultRequestHeadersAppendInterceptorTest {
                 timestamp: Long,
                 nonce: String,
                 flatQueryParam: String,
-                body: Map<String, Any?>): String {
+                body: Map<String, Any?>
+            ): String {
                 capturedQueryParams.add(flatQueryParam)
                 return "test"
             }
@@ -101,14 +105,16 @@ class DefaultRequestHeadersAppendInterceptorTest {
                 timestamp: Long,
                 nonce: String,
                 queryParam: Map<String, List<String?>>,
-                body: Map<String, Any?>): String {
-                capturedQueryParams.add(queryParam.toSortedMap().map { "${it.key}=${it.value}" }.joinToString("&"))
+                body: Map<String, Any?>
+            ): String {
+                capturedQueryParams.add(queryParam.toSortedMap().map { "${it.key}=${it.value}" }
+                    .joinToString("&"))
                 return "test"
             }
         }
 
         interceptor = DefaultRequestHeadersAppender(
-            clock,
+            globalTimestampProvider,
             signatureGenerator,
             nonceGenerator,
             SERVICE_API_KEY
@@ -159,7 +165,7 @@ class DefaultRequestHeadersAppendInterceptorTest {
         val signatureGenerator = createCaptureBodySignatureGenerator(capturedRequestBody)
 
         interceptor = DefaultRequestHeadersAppender(
-            clock,
+            globalTimestampProvider,
             signatureGenerator,
             nonceGenerator,
             SERVICE_API_KEY
@@ -210,7 +216,7 @@ class DefaultRequestHeadersAppendInterceptorTest {
         val signatureGenerator = createCaptureBodySignatureGenerator(capturedRequestBody)
 
         interceptor = DefaultRequestHeadersAppender(
-            clock,
+            globalTimestampProvider,
             signatureGenerator,
             nonceGenerator,
             SERVICE_API_KEY
@@ -244,7 +250,8 @@ class DefaultRequestHeadersAppendInterceptorTest {
             "walletAddress" to "walletAddress"
         )
 
-        val requestBody = jacksonObjectMapper().writeValueAsString(body).toRequestBody("application/json; charset=UTF-8".toMediaType())
+        val requestBody = jacksonObjectMapper().writeValueAsString(body)
+            .toRequestBody("application/json; charset=UTF-8".toMediaType())
 
         val request: Request = Request.Builder()
             .url(httpUrl)
@@ -264,7 +271,7 @@ class DefaultRequestHeadersAppendInterceptorTest {
         val signatureGenerator = createCaptureBodySignatureGenerator(capturedRequestBody)
 
         interceptor = DefaultRequestHeadersAppender(
-            clock,
+            globalTimestampProvider,
             signatureGenerator,
             nonceGenerator,
             SERVICE_API_KEY
@@ -295,7 +302,8 @@ class DefaultRequestHeadersAppendInterceptorTest {
 
         val body = emptyMap<String, Any>()
 
-        val requestBody = jacksonObjectMapper().writeValueAsString(body).toRequestBody("application/json; charset=UTF-8".toMediaType())
+        val requestBody = jacksonObjectMapper().writeValueAsString(body)
+            .toRequestBody("application/json; charset=UTF-8".toMediaType())
 
         val request: Request = Request.Builder()
             .url(httpUrl)
@@ -327,7 +335,8 @@ class DefaultRequestHeadersAppendInterceptorTest {
                 timestamp: Long,
                 nonce: String,
                 flatQueryParam: String,
-                body: Map<String, Any?>): String {
+                body: Map<String, Any?>
+            ): String {
                 return "test"
             }
 
@@ -337,7 +346,8 @@ class DefaultRequestHeadersAppendInterceptorTest {
                 timestamp: Long,
                 nonce: String,
                 queryParam: Map<String, List<String?>>,
-                body: Map<String, Any?>): String {
+                body: Map<String, Any?>
+            ): String {
                 return "test"
             }
         }
@@ -355,7 +365,8 @@ class DefaultRequestHeadersAppendInterceptorTest {
                     timestamp: Long,
                     nonce: String,
                     flatQueryParam: String,
-                    body: Map<String, Any?>): String {
+                    body: Map<String, Any?>
+                ): String {
                     capturedRequestBody.putAll(body)
                     return "test"
                 }
@@ -366,7 +377,8 @@ class DefaultRequestHeadersAppendInterceptorTest {
                     timestamp: Long,
                     nonce: String,
                     queryParam: Map<String, List<String?>>,
-                    body: Map<String, Any?>): String {
+                    body: Map<String, Any?>
+                ): String {
                     capturedRequestBody.putAll(body)
                     return "test"
                 }

@@ -9,6 +9,8 @@ import com.github.ryukato.link.developers.sdk.api.TIMESTAMP_HEADER
 import com.github.ryukato.link.developers.sdk.key.ApiKeySecret
 import com.github.ryukato.link.developers.sdk.signature.DefaultSignatureGenerator
 import com.github.ryukato.link.developers.sdk.signature.SignatureGenerator
+import com.github.ryukato.link.developers.sdk.time.DefaultGlobalTimestampProvider
+import com.github.ryukato.link.developers.sdk.time.GlobalTimestampProvider
 
 import okhttp3.FormBody
 import okhttp3.Headers
@@ -31,13 +33,13 @@ interface RequestHeadersAppender : Interceptor {
 }
 
 class DefaultRequestHeadersAppender(
-    private val applicationClock: Clock,
+    private val globalTimestampProvider: GlobalTimestampProvider,
     private val signatureGenerator: SignatureGenerator,
     private val nonceGenerator: NonceGenerator,
     private val serviceApiKey: String,
 ) : RequestHeadersAppender {
     override fun createNewHeaders(request: Request): Headers {
-        val timestamp = applicationClock.instant().toEpochMilli()
+        val timestamp = globalTimestampProvider.timestamp()
         val nonce = nonceGenerator.newNonce()
 
         val queryParams: Map<String, List<String?>> = queryParameters(request)
@@ -125,7 +127,7 @@ class DefaultRequestHeadersAppender(
 
         fun createDefaultInstance(apiKeySecret: ApiKeySecret): RequestHeadersAppender {
             return DefaultRequestHeadersAppender(
-                Clock.system(ZoneId.systemDefault()),
+                DefaultGlobalTimestampProvider(),
                 DefaultSignatureGenerator.createDefaultInstance(apiKeySecret.secret),
                 DefaultStringNonceGenerator.createDefaultInstance(),
                 apiKeySecret.key
