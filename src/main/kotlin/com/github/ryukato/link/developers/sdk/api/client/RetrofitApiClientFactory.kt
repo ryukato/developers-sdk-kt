@@ -3,11 +3,11 @@ package com.github.ryukato.link.developers.sdk.api.client
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ryukato.link.developers.sdk.api.helper.DefaultRequestHeadersAppender
-import com.github.ryukato.link.developers.sdk.api.helper.DefaultRequestQueryParameterOrderer
 import com.github.ryukato.link.developers.sdk.api.helper.NetworkResponseAdapterFactory
 import com.github.ryukato.link.developers.sdk.api.helper.RequestHeadersAppender
-import com.github.ryukato.link.developers.sdk.api.helper.RequestQueryParameterOrderer
 import com.github.ryukato.link.developers.sdk.key.ApiKeySecret
+import com.github.ryukato.link.developers.sdk.signature.DefaultRequestQueryParameterOrderer
+import com.github.ryukato.link.developers.sdk.signature.RequestQueryParameterOrderer
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

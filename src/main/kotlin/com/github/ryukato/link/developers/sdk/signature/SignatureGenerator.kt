@@ -1,8 +1,7 @@
-package com.github.ryukato.link.developers.sdk.api.helper
+package com.github.ryukato.link.developers.sdk.signature
 
-import com.github.ryukato.link.developers.sdk.key.ApiKeySecret
 import org.apache.commons.codec.binary.Base64
-import java.util.*
+import java.util.TreeMap
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 

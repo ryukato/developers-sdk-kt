@@ -1,10 +1,10 @@
-package com.github.ryukato.link.developers.sdk.api.helper
+package com.github.ryukato.link.developers.sdk.signature
 
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import java.util.*
+import java.util.TreeMap
 
 interface RequestQueryParameterOrderer : QueryParameterOrderer, Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {

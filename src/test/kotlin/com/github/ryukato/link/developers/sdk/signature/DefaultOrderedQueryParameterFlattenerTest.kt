@@ -1,4 +1,4 @@
-package com.github.ryukato.link.developers.sdk.api.helper
+package com.github.ryukato.link.developers.sdk.signature
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach

@@ -1,4 +1,4 @@
-package com.github.ryukato.link.developers.sdk.api.helper
+package com.github.ryukato.link.developers.sdk.signature
 
 import com.github.ryukato.link.developers.sdk.api.client.toEpochMilli
 import okhttp3.HttpUrl

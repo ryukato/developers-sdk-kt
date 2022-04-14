@@ -1,22 +1,14 @@
 package com.github.ryukato.link.developers.sdk.api.client
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.ryukato.link.developers.sdk.api.helper.RequestHeadersAppender
-import com.github.ryukato.link.developers.sdk.api.helper.RequestQueryParameterOrderer
 import com.github.ryukato.link.developers.sdk.key.ApiKeySecret
 import kotlinx.coroutines.runBlocking
-import okhttp3.Headers
-import okhttp3.HttpUrl
-import okhttp3.Request
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import retrofit2.http.GET
 import java.time.Instant
-import java.util.TreeMap
 
 class ApiClientBasicTest {
     private lateinit var retrofitApiClientFactory: RetrofitApiClientFactory

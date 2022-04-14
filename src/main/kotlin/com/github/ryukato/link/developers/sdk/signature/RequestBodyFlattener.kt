@@ -1,7 +1,7 @@
-package com.github.ryukato.link.developers.sdk.api.helper
+package com.github.ryukato.link.developers.sdk.signature
 
 import org.apache.commons.lang3.StringUtils
-import java.util.*
+import java.util.TreeMap
 
 interface RequestBodyFlattener {
     fun flatten(body: Map<String, Any?>): String

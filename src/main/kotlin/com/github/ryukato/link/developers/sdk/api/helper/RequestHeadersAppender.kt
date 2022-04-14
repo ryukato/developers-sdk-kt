@@ -7,6 +7,8 @@ import com.github.ryukato.link.developers.sdk.api.SERVICE_API_KEY_HEADER
 import com.github.ryukato.link.developers.sdk.api.SIGNATURE_HEADER
 import com.github.ryukato.link.developers.sdk.api.TIMESTAMP_HEADER
 import com.github.ryukato.link.developers.sdk.key.ApiKeySecret
+import com.github.ryukato.link.developers.sdk.signature.DefaultSignatureGenerator
+import com.github.ryukato.link.developers.sdk.signature.SignatureGenerator
 
 import okhttp3.FormBody
 import okhttp3.Headers

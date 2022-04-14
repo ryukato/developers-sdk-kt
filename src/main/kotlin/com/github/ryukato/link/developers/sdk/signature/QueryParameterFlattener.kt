@@ -1,6 +1,6 @@
-package com.github.ryukato.link.developers.sdk.api.helper
+package com.github.ryukato.link.developers.sdk.signature
 
-import java.util.*
+import java.util.TreeMap
 
 interface QueryParameterFlattener {
     fun flatten(queryParams: Map<String, List<String?>>): String
