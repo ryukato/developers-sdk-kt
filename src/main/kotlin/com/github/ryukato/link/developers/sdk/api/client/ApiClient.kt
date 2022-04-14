@@ -1,4 +1,5 @@
 @file:Suppress("unused")
+
 package com.github.ryukato.link.developers.sdk.api.client
 
 import com.github.ryukato.link.developers.sdk.api.BASE_COIN_TRANSFER_PATH
@@ -31,6 +32,7 @@ import com.github.ryukato.link.developers.sdk.api.REQUEST_SESSION_TOKEN_PATH
 import com.github.ryukato.link.developers.sdk.api.SERVICE_DETAIL_API_PATH
 import com.github.ryukato.link.developers.sdk.api.SERVICE_TOKENS_PATH
 import com.github.ryukato.link.developers.sdk.api.SERVICE_TOKEN_BURN_PATH
+import com.github.ryukato.link.developers.sdk.api.SERVICE_TOKEN_BY_TX_HASH_PATH
 import com.github.ryukato.link.developers.sdk.api.SERVICE_TOKEN_HOLDERS_PATH
 import com.github.ryukato.link.developers.sdk.api.SERVICE_TOKEN_MINT_PATH
 import com.github.ryukato.link.developers.sdk.api.SERVICE_TOKEN_PATH
@@ -74,6 +76,7 @@ import com.github.ryukato.link.developers.sdk.api.request.BurnFromServiceTokenRe
 import com.github.ryukato.link.developers.sdk.api.request.FungibleTokenBurnRequest
 import com.github.ryukato.link.developers.sdk.api.request.FungibleTokenCreateUpdateRequest
 import com.github.ryukato.link.developers.sdk.api.request.FungibleTokenMintRequest
+import com.github.ryukato.link.developers.sdk.api.request.IssueServiceTokenRequest
 import com.github.ryukato.link.developers.sdk.api.request.MemoRequest
 import com.github.ryukato.link.developers.sdk.api.request.MintServiceTokenRequest
 import com.github.ryukato.link.developers.sdk.api.request.NonFungibleTokenBurnRequest
@@ -112,6 +115,7 @@ import com.github.ryukato.link.developers.sdk.api.response.ServiceDetail
 import com.github.ryukato.link.developers.sdk.api.response.ServiceToken
 import com.github.ryukato.link.developers.sdk.api.response.ServiceTokenBalance
 import com.github.ryukato.link.developers.sdk.api.response.ServiceTokenHolder
+import com.github.ryukato.link.developers.sdk.api.response.SimpleServiceToken
 import com.github.ryukato.link.developers.sdk.api.response.TokenIndex
 import com.github.ryukato.link.developers.sdk.api.response.TransactionResponse
 import com.github.ryukato.link.developers.sdk.api.response.TxResultResponse
@@ -132,14 +136,25 @@ interface ApiClient {
     @GET(TIME_API_PATH)
     suspend fun time(): GenericResponse<Unit>
 
-    @GET(USER_REQUESTS_PATH)
-    suspend fun userRequests(@Path("requestSessionToken") requestSessionToken: String): GenericResponse<UserRequestStatus>
-
     /**
      * Retrieve service information
      */
     @GET(SERVICE_DETAIL_API_PATH)
     suspend fun serviceDetail(@Path("serviceId") serviceId: String): GenericResponse<ServiceDetail>
+
+    /**
+     *  Issue a service token
+     */
+    @POST(SERVICE_TOKENS_PATH)
+    suspend fun issueServiceToken(
+        @Body issueServiceTokenRequest: IssueServiceTokenRequest
+    ): GenericResponse<TransactionResponse>
+
+    @GET(SERVICE_TOKEN_BY_TX_HASH_PATH)
+    suspend fun serviceTokenByTxHash(
+        @Path("txHash") txHash: String,
+        @Query("isOnlyContractId") isOnlyContractId : Boolean = false,
+    ): GenericResponse<SimpleServiceToken>
 
     /**
      * List all service tokens

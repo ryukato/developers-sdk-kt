@@ -41,6 +41,18 @@ enum class RequestSessionTokenStatus {
     Unauthorized;
 }
 
+data class SimpleServiceToken(
+    val contractId: String,
+    val ownerAddress: String,
+    val createdAt: Long,
+    val serviceId: String,
+    val decimals: Int,
+    val name: String,
+    val symbol: String,
+    val meta: String,
+    val imgUri: String,
+)
+
 data class ServiceToken(
     val contractId: String,
     val ownerAddress: String,
